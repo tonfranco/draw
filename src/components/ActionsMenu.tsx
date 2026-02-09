@@ -4,12 +4,15 @@ import React, { useState, useRef } from "react";
 import { useStore } from "@/store/useStore";
 import {
   Menu,
+  X,
   Download,
   Upload,
   Image,
   Trash2,
   Undo2,
   Redo2,
+  FileJson,
+  Pencil,
 } from "lucide-react";
 
 export default function ActionsMenu() {
@@ -72,15 +75,18 @@ export default function ActionsMenu() {
   };
 
   const handleClearCanvas = () => {
-    if (confirm("Are you sure you want to clear the canvas?")) {
+    if (confirm("Tem certeza que deseja limpar o canvas?")) {
       setElements([]);
       pushHistory();
     }
     setIsOpen(false);
   };
 
+  const elementCount = elements.length;
+
   return (
     <>
+      {/* Trigger button */}
       <div className="absolute top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -88,68 +94,131 @@ export default function ActionsMenu() {
         >
           <Menu size={18} />
         </button>
+      </div>
 
-        {isOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setIsOpen(false)}
-            />
-            <div className="absolute top-12 left-0 z-50 w-56 bg-white border border-gray-200 rounded-xl shadow-xl py-2">
-              <button
-                onClick={undo}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <Undo2 size={16} />
-                <span>Undo</span>
-                <span className="ml-auto text-xs text-gray-400">⌘Z</span>
-              </button>
-              <button
-                onClick={redo}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <Redo2 size={16} />
-                <span>Redo</span>
-                <span className="ml-auto text-xs text-gray-400">⌘⇧Z</span>
-              </button>
+      {/* Overlay + Sidebar */}
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-[200] transition-opacity"
+            onClick={() => setIsOpen(false)}
+          />
 
-              <div className="border-t border-gray-100 my-1" />
-
+          <div className="fixed top-3 left-3 h-[calc(100%-24px)] w-72 bg-white shadow-2xl z-[201] flex flex-col animate-in slide-in-from-left duration-200 rounded-2xl border border-gray-200">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                  <Pencil size={16} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-gray-900 leading-none">DrawBoard</h2>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{elementCount} elemento{elementCount !== 1 ? "s" : ""}</p>
+                </div>
+              </div>
               <button
-                onClick={handleExportPNG}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
               >
-                <Image size={16} />
-                <span>Export as PNG</span>
-              </button>
-              <button
-                onClick={handleExportJSON}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <Download size={16} />
-                <span>Export as JSON</span>
-              </button>
-              <button
-                onClick={handleImportJSON}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                <Upload size={16} />
-                <span>Import JSON</span>
-              </button>
-
-              <div className="border-t border-gray-100 my-1" />
-
-              <button
-                onClick={handleClearCanvas}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 size={16} />
-                <span>Clear canvas</span>
+                <X size={18} />
               </button>
             </div>
-          </>
-        )}
-      </div>
+
+            {/* Menu items */}
+            <div className="flex-1 overflow-y-auto py-2">
+              {/* Edit section */}
+              <div className="px-4 pt-3 pb-1.5">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Editar</span>
+              </div>
+              <div className="px-2">
+                <button
+                  onClick={() => { undo(); setIsOpen(false); }}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                    <Undo2 size={15} className="text-gray-500 group-hover:text-indigo-600" />
+                  </div>
+                  <span className="font-medium">Desfazer</span>
+                  <kbd className="ml-auto text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-mono">⌘Z</kbd>
+                </button>
+                <button
+                  onClick={() => { redo(); setIsOpen(false); }}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-indigo-100 flex items-center justify-center transition-colors">
+                    <Redo2 size={15} className="text-gray-500 group-hover:text-indigo-600" />
+                  </div>
+                  <span className="font-medium">Refazer</span>
+                  <kbd className="ml-auto text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-mono">⌘⇧Z</kbd>
+                </button>
+              </div>
+
+              {/* Export section */}
+              <div className="px-4 pt-5 pb-1.5">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Exportar</span>
+              </div>
+              <div className="px-2">
+                <button
+                  onClick={handleExportPNG}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-emerald-100 flex items-center justify-center transition-colors">
+                    <Image size={15} className="text-gray-500 group-hover:text-emerald-600" />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-medium block leading-tight">Exportar PNG</span>
+                    <span className="text-[11px] text-gray-400">Salvar como imagem</span>
+                  </div>
+                </button>
+                <button
+                  onClick={handleExportJSON}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                    <Download size={15} className="text-gray-500 group-hover:text-blue-600" />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-medium block leading-tight">Exportar JSON</span>
+                    <span className="text-[11px] text-gray-400">Backup do projeto</span>
+                  </div>
+                </button>
+              </div>
+
+              {/* Import section */}
+              <div className="px-4 pt-5 pb-1.5">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Importar</span>
+              </div>
+              <div className="px-2">
+                <button
+                  onClick={handleImportJSON}
+                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-amber-100 flex items-center justify-center transition-colors">
+                    <Upload size={15} className="text-gray-500 group-hover:text-amber-600" />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-medium block leading-tight">Importar JSON</span>
+                    <span className="text-[11px] text-gray-400">Carregar projeto salvo</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Footer - danger zone */}
+            <div className="border-t border-gray-100 p-3">
+              <button
+                onClick={handleClearCanvas}
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-red-50 group-hover:bg-red-100 flex items-center justify-center transition-colors">
+                  <Trash2 size={15} className="text-red-400 group-hover:text-red-600" />
+                </div>
+                <span className="font-medium">Limpar canvas</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
       <input
         ref={fileInputRef}
